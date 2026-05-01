@@ -420,7 +420,7 @@ function tttMove(i){
   if(TB.every(Boolean)){TD=true;drawTTT();document.getElementById('tS').textContent='Draw!';return;}
   document.getElementById('tS').textContent='House thinking...';drawTTT();
   setTimeout(function(){
-    var m=Math.random()<0.5?mmove():emove();
+    var m=Math.random()<0.7?mmove():emove();
     TB[m]='O';var w2=tttWin(TB);
     if(w2){TD=true;drawTTT();tttHL(w2);document.getElementById('tS').textContent='House wins! 😅';}
     else if(TB.every(Boolean)){TD=true;drawTTT();document.getElementById('tS').textContent='Draw!';}
@@ -819,9 +819,8 @@ function drawDP(){
 }
 function dpTog(i){if(DPPHASE!=='rolling')return;DH[i]=!DH[i];drawDP();}
 function dpStand(){
+  // House gets ONE purely random roll — no smart holding — so player has fair chance to win
   HHOUSE=[1,1,1,1,1].map(function(){return Math.floor(Math.random()*6)+1;});
-  var hHeld=dpBestHold(HHOUSE);
-  HHOUSE=HHOUSE.map(function(v,i){return hHeld[i]?v:Math.floor(Math.random()*6)+1;});
   DPPHASE='result';dpShowResult();
 }
 function dpBestHold(dice){
@@ -875,7 +874,7 @@ function dpPts(h){
 
 /* SIMON */
 var SS,SPLY,SLV,SP2;
-function renderSimon(){SS=[];SP2=[];SPLY=false;SLV=0;document.getElementById('gameArea').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;width:100%;"><div class="simon-level">Level: <span id="sLv">0</span></div><div class="status-msg" id="sSt">Get ready...</div><div class="simon-grid"><button class="simon-btn" data-s="0" onclick="simonP(0)"></button><button class="simon-btn" data-s="1" onclick="simonP(1)"></button><button class="simon-btn" data-s="2" onclick="simonP(2)"></button><button class="simon-btn" data-s="3" onclick="simonP(3)"></button></div><button class="play-again-btn" style="margin-top:8px;" onclick="renderSimon()">New Game</button></div>';
+function renderSimon(){SS=[];SP2=[];SPLY=false;SLV=0;window.SPOOL=[];document.getElementById('gameArea').innerHTML='<div style="display:flex;flex-direction:column;align-items:center;width:100%;"><div class="simon-level">Level: <span id="sLv">0</span></div><div class="status-msg" id="sSt">Get ready...</div><div class="simon-grid"><button class="simon-btn" data-s="0" onclick="simonP(0)"></button><button class="simon-btn" data-s="1" onclick="simonP(1)"></button><button class="simon-btn" data-s="2" onclick="simonP(2)"></button><button class="simon-btn" data-s="3" onclick="simonP(3)"></button></div><button class="play-again-btn" style="margin-top:8px;" onclick="renderSimon()">New Game</button></div>';
   var counts=[3,2,1];var ci=0;
   function tick(){
     var st=document.getElementById('sSt');
@@ -884,8 +883,33 @@ function renderSimon(){SS=[];SP2=[];SPLY=false;SLV=0;document.getElementById('ga
   }
   setTimeout(tick,400);
 }
-function simonNxt(){SS.push(Math.floor(Math.random()*4));SLV++;var lv=document.getElementById('sLv');if(lv)lv.textContent=SLV;var st=document.getElementById('sSt');if(st)st.textContent='Watch carefully...';SP2=[];SPLY=true;simonPlay(0);}
-function simonPlay(i){if(i>=SS.length){SPLY=false;var st=document.getElementById('sSt');if(st)st.textContent='Your turn!';return;}var bt=document.querySelectorAll('.simon-btn');setTimeout(function(){if(bt[SS[i]])bt[SS[i]].classList.add('lit');setTimeout(function(){if(bt[SS[i]])bt[SS[i]].classList.remove('lit');simonPlay(i+1);},500);},i===0?300:700);}
+function simonNxt(){
+  SS.push(Math.floor(Math.random()*4));
+  SLV++;var lv=document.getElementById('sLv');if(lv)lv.textContent=SLV;
+  var st=document.getElementById('sSt');if(st)st.textContent='Watch carefully...';
+  SP2=[];SPLY=true;simonPlay(0);
+}
+function simonPlay(i){
+  if(i>=SS.length){
+    SPLY=false;
+    var st=document.getElementById('sSt');if(st)st.textContent='Your turn!';
+    return;
+  }
+  var delay=i===0?300:750;
+  setTimeout(function(){
+    var bt=document.querySelectorAll('.simon-btn');
+    var btn=bt[SS[i]];
+    if(btn){
+      btn.classList.add('lit');
+      setTimeout(function(){
+        btn.classList.remove('lit');
+        simonPlay(i+1);
+      },550);
+    } else {
+      simonPlay(i+1);
+    }
+  },delay);
+}
 function simonP(n){if(SPLY)return;var bt=document.querySelectorAll('.simon-btn');if(bt[n]){bt[n].classList.add('lit');setTimeout(function(){bt[n].classList.remove('lit');},200);}SP2.push(n);var idx=SP2.length-1;if(SP2[idx]!==SS[idx]){var st=document.getElementById('sSt');if(st)st.textContent='Wrong! Level '+SLV+' 😅';SPLY=true;return;}if(SP2.length===SS.length){var st2=document.getElementById('sSt');if(st2)st2.textContent='Nice! Get ready...';SPLY=true;setTimeout(function(){simonNxt();},900);}}
 
 /* WORD SCRAMBLE */
