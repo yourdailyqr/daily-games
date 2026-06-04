@@ -308,7 +308,7 @@ body{
 }
 .simon-btn{
   height:clamp(74px,21vw,94px);
-  border-radius:16px;border:3px solid transparent;cursor:pointer;transition:opacity 0.1s,transform 0.1s,box-shadow 0.1s;opacity:0.35;
+  border-radius:16px;border:3px solid transparent;cursor:pointer;opacity:0.35;
 }
 .simon-btn.lit{opacity:1;transform:scale(1.08);box-shadow:0 0 28px 8px rgba(255,255,255,0.75),inset 0 0 20px rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.9);}.simon-btn:hover{opacity:0.6;}
 .simon-btn[data-s="0"]{background:#ff6b6b;}.simon-btn[data-s="1"]{background:#4ecdc4;}
@@ -521,10 +521,10 @@ function updateDate(){
   var d=new Date();d.setDate(d.getDate()+curDay);
   document.getElementById('dateLine').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   document.getElementById('navLabel').textContent=curDay===0?'TODAY':curDay===-1?'YESTERDAY':Math.abs(curDay)+' DAYS AGO';
-  document.getElementById('navLeft').disabled=(curDay<=-999);
+  document.getElementById('navLeft').disabled=(curDay<=-7);
   document.getElementById('navRight').disabled=(curDay>=0);
 }
-function changeDay(d){curDay=Math.max(-999,Math.min(0,curDay+d));updateDate();launch(getGame(curDay));}
+function changeDay(d){curDay=Math.max(-7,Math.min(0,curDay+d));updateDate();launch(getGame(curDay));}
 function launch(i){
   document.getElementById('gameTitle').textContent=GNAMES[i];
   document.getElementById('bgEl').style.backgroundImage='url('+GIMGS[i]+')';
