@@ -346,20 +346,26 @@ body{
 <body>
 <script>
 (function(){
-  var KEY="ydqr_game_scan_ts";
-  var now=Date.now();
-  var stored=localStorage.getItem(KEY);
-  if(stored){
-    var elapsed=now-parseInt(stored,10);
-    if(elapsed>=259200000){
-      localStorage.removeItem(KEY);
-      document.addEventListener("DOMContentLoaded",showExpired);
+  var KEY="ydq_game_last_view_ts";
+  function checkGate(fromVisibility){
+    var now=Date.now();
+    var stored=localStorage.getItem(KEY);
+    if(stored){
+      var elapsed=now-parseInt(stored,10);
+      if(elapsed>=259200000){
+        localStorage.removeItem(KEY);
+        if(fromVisibility){ showExpired(); } else { document.addEventListener("DOMContentLoaded",showExpired); }
+      } else {
+        localStorage.setItem(KEY,String(now));
+      }
     } else {
       localStorage.setItem(KEY,String(now));
     }
-  } else {
-    localStorage.setItem(KEY,String(now));
   }
+  checkGate(false);
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="visible"){ checkGate(true); }
+  });
   function showExpired(){
     var page=document.createElement("div");
     page.className="page";
@@ -374,10 +380,18 @@ body{
     top.style.cssText="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:48px 24px 36px;box-sizing:border-box";
     var mid=document.createElement("div");
     mid.style.cssText="flex:1;display:flex;align-items:center;justify-content:center;padding:24px 0";
+    var msgWrap=document.createElement("div");
+    msgWrap.style.cssText="position:absolute;top:66%;left:50%;transform:translate(-50%,-50%);width:80%;text-align:center;z-index:2";
     var p=document.createElement("p");
-    p.style.cssText="font-family:Fredoka One,cursive;font-size:clamp(18px,5vw,26px);color:#5C3A1E;text-align:center;line-height:1.5;max-width:340px;margin:0;position:absolute;top:66%;left:50%;transform:translate(-50%,-50%);width:80%;z-index:2";
-    p.textContent="Opps! Looks like you need to scan your QR code again for your daily game.";
-    mid.appendChild(p);
+    p.style.cssText="font-family:Fredoka One,cursive;font-size:clamp(18px,5vw,26px);color:#5C3A1E;text-align:center;line-height:1.5;max-width:340px;margin:0 auto";
+    p.textContent="Oops. It's been a little while. Looks like you need to rescan the QR code to see today's game.";
+    msgWrap.appendChild(p);
+    var reset=document.createElement("button");
+    reset.textContent="Tap to reset & preview";
+    reset.style.cssText="margin:16px auto 0;display:block;padding:8px 16px;background:transparent;border:1px solid rgba(92,58,30,0.35);border-radius:20px;color:rgba(92,58,30,0.65);font-family:Nunito,sans-serif;font-size:12px;cursor:pointer";
+    reset.onclick=function(){localStorage.removeItem(KEY);location.reload();};
+    msgWrap.appendChild(reset);
+    mid.appendChild(msgWrap);
     var bot=document.createElement("div");
     bot.style.cssText="flex:0 0 auto;text-align:center";
     var a=document.createElement("a");
