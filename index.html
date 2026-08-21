@@ -352,6 +352,7 @@ body{
   if(stored){
     var elapsed=now-parseInt(stored,10);
     if(elapsed>=259200000){
+      localStorage.removeItem(KEY);
       document.addEventListener("DOMContentLoaded",showExpired);
     } else {
       localStorage.setItem(KEY,String(now));
