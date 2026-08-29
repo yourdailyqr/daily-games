@@ -347,24 +347,21 @@ body{
 <script>
 (function(){
   var KEY="ydq_game_last_view_ts";
-  function checkGate(fromVisibility){
-    var now=Date.now();
+  function showOnLoad(){
+    localStorage.setItem(KEY,String(Date.now()));
+  }
+  showOnLoad();
+  function checkGateOnForeground(){
     var stored=localStorage.getItem(KEY);
-    if(stored){
-      var elapsed=now-parseInt(stored,10);
-      if(elapsed>=259200000){
-        localStorage.removeItem(KEY);
-        if(fromVisibility){ showExpired(); } else { document.addEventListener("DOMContentLoaded",showExpired); }
-      } else {
-        localStorage.setItem(KEY,String(now));
-      }
-    } else {
-      localStorage.setItem(KEY,String(now));
+    if(!stored){ return; }
+    var elapsed=Date.now()-parseInt(stored,10);
+    if(elapsed>=259200000){
+      localStorage.removeItem(KEY);
+      showExpired();
     }
   }
-  checkGate(false);
   document.addEventListener("visibilitychange",function(){
-    if(document.visibilityState==="visible"){ checkGate(true); }
+    if(document.visibilityState==="visible"){ checkGateOnForeground(); }
   });
   function showExpired(){
     var page=document.createElement("div");
@@ -389,7 +386,7 @@ body{
     var reset=document.createElement("button");
     reset.textContent="Tap to reset & preview";
     reset.style.cssText="margin:16px auto 0;display:block;padding:8px 16px;background:transparent;border:1px solid rgba(92,58,30,0.35);border-radius:20px;color:rgba(92,58,30,0.65);font-family:Nunito,sans-serif;font-size:12px;cursor:pointer";
-    reset.onclick=function(){localStorage.removeItem(KEY);location.reload();};
+    reset.onclick=function(){localStorage.removeItem(KEY);showExpired();};
     msgWrap.appendChild(reset);
     mid.appendChild(msgWrap);
     var bot=document.createElement("div");
